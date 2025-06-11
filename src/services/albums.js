@@ -1,4 +1,5 @@
 const pool = require('../database/postgres');
+const NotFoundError = require('../NotFoundError');
 
 const getAllAlbums = async () => {
   const result = await pool.query('SELECT * FROM albums');
@@ -6,22 +7,22 @@ const getAllAlbums = async () => {
 };
 
 const getAlbumById = async (id) => {
-    const albumResult = await pool.query('SELECT * FROM albums WHERE id = $1', [id]);
+  const albumResult = await pool.query('SELECT * FROM albums WHERE id = $1', [id]);
   
-    if (!albumResult.rowCount) {
-      throw new NotFoundError('Album tidak ditemukan');
-    }
+  if (!albumResult.rowCount) {
+    throw new NotFoundError('Album tidak ditemukan');
+  }
   
-    const songsResult = await pool.query(
-      'SELECT id, title, performer FROM songs WHERE album_id = $1',
-      [id]
-    );
+  const songsResult = await pool.query(
+    'SELECT id, title, performer FROM songs WHERE album_id = $1',
+    [id]
+  );
   
-    return {
-      ...albumResult.rows[0],
-      songs: songsResult.rows,
-    };
-  };  
+  return {
+    ...albumResult.rows[0],
+    songs: songsResult.rows,
+  };
+};  
 
 const addAlbum = async (payload) => {
   const { name, year } = payload;
@@ -49,15 +50,15 @@ const deleteAlbumById = async (id) => {
   
 
 const getAlbumWithSongs = async (id) => {
-    const albumResult = await pool.query('SELECT * FROM albums WHERE id = $1', [id]);
-    const album = albumResult.rows[0];
-    if (!album) return null;
-    const songsResult = await pool.query(
-      'SELECT id, title, performer FROM songs WHERE album_id = $1',
-      [id]
-    );
-    album.songs = songsResult.rows;
-    return album;
+  const albumResult = await pool.query('SELECT * FROM albums WHERE id = $1', [id]);
+  const album = albumResult.rows[0];
+  if (!album) return null;
+  const songsResult = await pool.query(
+    'SELECT id, title, performer FROM songs WHERE album_id = $1',
+    [id]
+  );
+  album.songs = songsResult.rows;
+  return album;
 };
 
 module.exports = {

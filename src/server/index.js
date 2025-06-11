@@ -74,7 +74,7 @@ const init = async() => {
 
   console.log('Registered Routes:');
   server.table().forEach(route => {
-  console.log(`- ${route.method.toUpperCase()} ${route.path}`);
+    console.log(`- ${route.method.toUpperCase()} ${route.path}`);
   });
 
   await server.start();

@@ -2,7 +2,7 @@ const { AlbumPayloadSchema } = require('../models/album-model');
 const NotFoundError = require('../NotFoundError');
 const {
   getAllAlbums,
-  getAlbumById,
+  //getAlbumById,
   addAlbum,
   editAlbumById,
   deleteAlbumById,

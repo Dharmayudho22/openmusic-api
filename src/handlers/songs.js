@@ -1,14 +1,14 @@
 const { nanoid } = require('nanoid');
 const { validateSongPayload } = require('../validator/songsValidator');
 const NotFoundError = require('../NotFoundError');
-const { 
-  getAllSongs, 
-  getSongById, 
-  addSong, 
-  editSongById, 
-  deleteSongById 
+const {
+  getAllSongs,
+  getSongById,
+  addSong,
+  editSongById,
+  deleteSongById,
 } = require('../services/songs');
-const { message } = require('../validator/songsValidator');
+//const { message } = require('../validator/songsValidator');
 
 const songsHandler = {
   async postSongHandler(request, h) {
@@ -62,9 +62,9 @@ const songsHandler = {
       const song = await getSongById(request.params.id);
       if (!song) {
         return h.response({
-        status: 'fail',
-        message: 'Lagu tidak ditemukan',
-      }).code(404);
+          status: 'fail',
+          message: 'Lagu tidak ditemukan',
+        }).code(404);
       }
       return h.response({
         status: 'success',

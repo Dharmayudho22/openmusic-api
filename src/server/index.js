@@ -18,7 +18,8 @@ const init = async() => {
   //routes
   const albumRoutes = require('../routes/albums');
   const songRoutes = require('../routes/songs');
-  server.route([...albumRoutes, ...songRoutes]);
+  const userRoutes = require('../routes/users');
+  server.route([...albumRoutes, ...songRoutes, ...userRoutes]);
     
   //error
   server.ext('onPreResponse', (request, h) => {

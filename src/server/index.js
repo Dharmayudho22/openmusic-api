@@ -19,7 +19,8 @@ const init = async() => {
   const albumRoutes = require('../routes/albums');
   const songRoutes = require('../routes/songs');
   const userRoutes = require('../routes/users');
-  server.route([...albumRoutes, ...songRoutes, ...userRoutes]);
+  const authRoutes = require('../routes/authentications');
+  server.route([...albumRoutes, ...songRoutes, ...userRoutes, ...authRoutes]);
     
   //error
   server.ext('onPreResponse', (request, h) => {

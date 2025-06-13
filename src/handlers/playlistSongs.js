@@ -48,7 +48,7 @@ const getSongsFromPlaylistHandler = async (request, h) => {
       data: { playlist },
     });
   } catch (error) {
-    const status = error.name === 'Forbiddan' ? 403 :
+    const status = error.name === 'Forbidden' ? 403 :
       error.name === 'Unauthorized' ? 401 : 
         error.name === 'NotFoundError' ? 404 : 500;
     return h.response({

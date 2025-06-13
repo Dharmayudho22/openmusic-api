@@ -1,6 +1,6 @@
 const {
   postSongToPlaylistHandler,
-  getSongsFromPlaylisthander,
+  getSongsFromPlaylistHandler,
   deleteSongFromPlaylistHandler,
 } = require('../handlers/playlistSongs');
 
@@ -13,7 +13,7 @@ module.exports = [
   {
     method: 'GET',
     path: '/playlists/{id}/songs',
-    handler: getSongsFromPlaylisthander,
+    handler: getSongsFromPlaylistHandler,
   },
   {
     method: 'DELETE',

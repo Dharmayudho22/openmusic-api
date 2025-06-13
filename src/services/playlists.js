@@ -4,7 +4,7 @@ const pool = require('../database/postgres');
 
 const addPlaylists = async (name, owner) => {
   const id = `playlist-${nanoid(16)}`;
-  await pool.query('INSERT INTO playlist (id, name, owner) VALUES ($1, $2, $3)', [id, name, owner]);
+  await pool.query('INSERT INTO playlists (id, name, owner) VALUES ($1, $2, $3)', [id, name, owner]);
   return id;
 };
 

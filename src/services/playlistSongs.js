@@ -3,7 +3,17 @@ const pool = require('../database/postgres');
 const NotFoundError = require('../NotFoundError');
 const { isPlaylistCollaborator } = require('./collaborations');
 const { logActivity } = require('./playlistActivities');
-const { verifyPlaylistOwner } = require('./playlistSongs');
+
+const verifyPlaylistOwner = async (playlistId, userId) => {
+  const result = await pool.query('SELECT owner FROM playlists WHERE id = $1', [playlistId]);
+  if (!result.rowCount) throw new NotFoundError('Playlist tidak ditemukan');
+
+  if (result.rows[0].owner !== userId) {
+    const error = new Error('Anda tidak berhak mengakses resource ini');
+    error.name = 'Forbidden';
+    throw error;
+  }
+};
 
 const verifyPlaylistAccess = async (playlistId, userId) => {
   try {

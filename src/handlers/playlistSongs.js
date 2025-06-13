@@ -1,10 +1,9 @@
 const {
-  //verifyPlaylistOwner,
   addSongToPlaylist,
   getSongsFromPlaylist,
   deleteSongFromPlaylist,
   verifyPlaylistAccess
-} = require('../services/playlistSong');
+} = require('../services/playlistSongs');
 
 const { validatePlaylistSongPayload } = require('../validator/playlistSongsValidator');
 const { authenticate } = require('../auth/authMiddleware');

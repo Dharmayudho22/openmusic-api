@@ -1,5 +1,5 @@
 const { validatePlaylistPayload } = require('../validator/playlistsValidator');
-const { addPlaylist, getPlaylists, deletePlaylist } = require('../services/playlists');
+const { addPlaylists, getPlaylists, deletePlaylist } = require('../services/playlists');
 const { authenticate } = require('../auth/authMiddleware');
 
 const postPlaylistHandler = async (request, h) => {
@@ -7,7 +7,7 @@ const postPlaylistHandler = async (request, h) => {
     const userId = authenticate(request);
     validatePlaylistPayload(request.payload);
   
-    const playlistId = await addPlaylist(request.payload.name, userId);
+    const playlistId = await addPlaylists(request.payload.name, userId);
     return h.response({
       status: 'success',
       message: 'Playlist berhasil dibuat',

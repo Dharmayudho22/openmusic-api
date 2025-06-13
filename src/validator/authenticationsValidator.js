@@ -6,7 +6,7 @@ const AUthPayloadSchema = Joi.object({
 });
 
 const RefreshTokenScema = Joi.object({
-  refreshToken: Joi.string().require(),
+  refreshToken: Joi.string().required(),
 });
 
 const validateAuthPayload = (payload) => {

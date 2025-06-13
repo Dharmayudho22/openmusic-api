@@ -1,7 +1,8 @@
 const { 
-  //validateAuthPayload, 
-  validateRefreshTokenPayload, 
+  validateAuthPayload,
+  validateRefreshTokenPayload 
 } = require('../validator/authenticationsValidator');
+
 const {
   verifyUserCredential,
   saveRefreshToken,
@@ -10,13 +11,13 @@ const {
 } = require('../services/authentications');
 const tokenManager = require('../tokenize/tokenManager');
 //const { valid } = require('joi');
-const { validateUserPayload } = require('../validator/usersValidator');
+//const { validateUserPayload } = require('../validator/usersValidator');
 //const { addUser } = require('../services/users');
 //const { postUserHandler } = require('./users');
 
 const postAuthenticationHandler = async (request, h) => {
   try {
-    validateUserPayload(request.payload);
+    validateAuthPayload(request.payload);
 
     const { username, password } = request.payload;
     const userId = await verifyUserCredential(username, password);

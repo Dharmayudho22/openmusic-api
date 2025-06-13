@@ -4,14 +4,24 @@ const pool = require('../database/postgres');
 
 const verifyUserCredential = async (username, password) => {
   const result = await pool.query('SELECT id, password FROM users WHERE username = $1', [username]);
-  if (!result.rowCount) throw new Error('Kredensial tidak valid');
+  
+  if (!result.rowCount) {
+    const error = new Error('Kredensial tidak valid');
+    error.name = 'AuthenticationError';
+    throw error;
+  }
 
-  const { id, password: hashed } = result.row[0];
-  const match = await bcrypt.compare(password, hashed);
-  if (!match) throw new Error('Kredensial tidak valid');
+  const { id, password: hashedPassword } = result.rows[0];
+  const match = await bcrypt.compare(password, hashedPassword);
+  if (!match) {
+    const error = new Error('Kredensial tidak valid');
+    error.name = 'AuthenticationError';
+    throw error;
+  }
 
   return id;
 };
+
 
 const verifyRefreshTokenExistence = async (token) => {
   const result = await pool.query('SELECT token FROM authentications WHERE token = $1', [token]);

@@ -1,26 +1,32 @@
 const { nanoid } = require('nanoid');
 const pool = require('../database/postgres');
 const NotFoundError = require('../NotFoundError');
+const { isPlaylistCollaborator } = require('./collaborations');
+const { logActivity } = require('./playlistActivities');
+const { verifyPlaylistOwner } = require('./playlistSongs');
 
-const verifyPlaylistOwner = async (playlissId, userId) => {
-  const result = await pool.query('SELECT owner FROM playlists WHERE id = $1', [playlissId]);
-  if (!result.rowCount) throw new NotFoundError('Playlist tidak ditemukan');
-  if (result.rows[0].owner !== userId) {
-    const error = new Error('Anda tidak berhak mengakses resurce ini');
-    error.name = 'Forbidden';
-    throw error;
+const verifyPlaylistAccess = async (playlistId, userId) => {
+  try {
+    await verifyPlaylistOwner(playlistId, userId);
+  } catch (error) {
+    if (error instanceof NotFoundError) throw error;
+
+    const isCollab = await isPlaylistCollaborator(playlistId, userId);
+    if (!isCollab) throw new Error('Anda tidak punya akses ke playlist ini');
   }
 };
 
-const addSongToPlaylist = async (playlistId, songId) => {
+const addSongToPlaylist = async (playlistId, songId, userId) => {
   const songsResult = await pool.query('SELECT id FROM songs WHERE id = $1', [songId]);
   if (!songsResult.rowCount) throw new NotFoundError('Lagu tidak ditemukan');
 
   const id = `psong-${nanoid(16)}`;
   await pool.query(
-    'INSERT INTO playlist_songs (id, plyalist_id, song_id) VALUES ($1, $2, $3)',
+    'INSERT INTO playlist_songs (id, playlist_id, song_id) VALUES ($1, $2, $3)',
     [id, playlistId, songId]
-  );
+  );  
+
+  await logActivity(playlistId, songId, userId, 'add');
 };
 
 const getSongsFromPlaylist = async (playlistId) => {
@@ -46,20 +52,23 @@ const getSongsFromPlaylist = async (playlistId) => {
   };
 };
   
-const deleteSongFromPlaylist = async (playlistId, songId) => {
+const deleteSongFromPlaylist = async (playlistId, songId, userId) => {
   const result = await pool.query(
     'DELETE FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2 RETURNING id',
     [playlistId, songId]
   );
+
   if (!result.rowCount) {
     const error = new Error('Lagu tidak ditemukan di playlist');
     error.name = 'NotFoundError';
     throw error;
   }
+
+  await logActivity(playlistId, songId, userId, 'delete');
 };
   
 module.exports = {
-  verifyPlaylistOwner,
+  verifyPlaylistAccess,
   addSongToPlaylist,
   getSongsFromPlaylist,
   deleteSongFromPlaylist,

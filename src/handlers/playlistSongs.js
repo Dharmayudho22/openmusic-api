@@ -1,8 +1,9 @@
 const {
-  verifyPlaylistOwner,
+  //verifyPlaylistOwner,
   addSongToPlaylist,
   getSongsFromPlaylist,
-  deleteSongFromPlaylist
+  deleteSongFromPlaylist,
+  verifyPlaylistAccess
 } = require('../services/playlistSong');
 
 const { validatePlaylistSongPayload } = require('../validator/playlistSongsValidator');
@@ -12,9 +13,11 @@ const postSongToPlaylistHandler = async (request, h) => {
   try {
     const userId = authenticate(request);
     const { id: playlistId } = request.params;
+    const { songId } = request.payload;
+
     validatePlaylistSongPayload(request.payload);
-    await verifyPlaylistOwner(playlistId, userId);
-    await addSongToPlaylist(playlistId, request.payload.songId);
+    await verifyPlaylistAccess(playlistId, userId);
+    await addSongToPlaylist(playlistId, songId, userId);
 
     return h.response({
       status: 'success',
@@ -36,7 +39,7 @@ const getSongsFromPlaylistHandler = async (request, h) => {
   try {
     const userId = authenticate(request);
     const { id: playlistId } = request.params;
-    await verifyPlaylistOwner(playlistId, userId);
+    await verifyPlaylistAccess(playlistId, userId);
 
     const playlist = await getSongsFromPlaylist(playlistId);
 
@@ -59,9 +62,11 @@ const deleteSongFromPlaylistHandler = async (request, h) => {
   try {
     const userId = authenticate(request);
     const { id: playlistId } = request.params;
+    const { songId } = request.payload;
+
     validatePlaylistSongPayload(request.payload);
-    await verifyPlaylistOwner(playlistId, userId);
-    await deleteSongFromPlaylist(playlistId, request.payload.songId);
+    await verifyPlaylistAccess(playlistId, userId);
+    await deleteSongFromPlaylist(playlistId, songId, userId);
   
     return h.response({
       status: 'success',

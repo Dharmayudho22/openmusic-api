@@ -36,10 +36,10 @@ const postAuthenticationHandler = async (request, h) => {
       },
     }).code(201);
   } catch (error) {
-    if (error.name === 'InvalidToken') {
+    if (error.name === 'ValidationError') {
       return h.response({ status: 'fail', message: error.message }).code(400);
     }
-    if (error.name === 'ValidationError') {
+    if (error.name === 'InvalidToken') {
       return h.response({ status: 'fail', message: error.message }).code(400);
     }
     if (error.name === 'AuthenticationError') {
@@ -102,15 +102,15 @@ const deleteAuthenticationHandler = async (request, h) => {
       message: 'Refresh token berhasil dihapus',
     });
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      return h.response({ status: 'fail', message: error.message }).code(400);
+    }
     if (error.name === 'InvalidToken') {
       return h.response({ status: 'fail', message: error.message }).code(400);
     }
     if (error.name === 'AuthenticationError') {
       return h.response({ status: 'fail', message: error.message }).code(401);
-    }
-    if (error.name === 'ValidationError') {
-      return h.response({ status: 'fail', message: error.message }).code(400);
-    }
+    }  
   
     //untuk error tak terduga
     console.error(error); //error bisa dilihat jika ada kesalahan

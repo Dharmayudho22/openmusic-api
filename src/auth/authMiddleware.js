@@ -15,6 +15,7 @@ const authenticate = (request) => {
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_KEY);
     return decoded.userId;
   } catch (err) {
+    console.warn('Token tidak valid', err.message);
     const error = new Error('Token tidak valid');
     error.name = 'Unauthorized';
     throw error;

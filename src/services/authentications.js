@@ -25,7 +25,7 @@ const verifyUserCredential = async (username, password) => {
 const verifyRefreshTokenExistence = async (token) => {
   const result = await pool.query('SELECT token FROM authentications WHERE token = $1', [token]);
   if (!result.rowCount) {
-    const error = new Error('Refresh token tidak ditemukan');
+    const error = new Error('Refresh token tidak valid');
     error.name = 'InvalidToken';
     throw error;
   }

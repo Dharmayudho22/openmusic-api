@@ -22,7 +22,11 @@ const verifyPlaylistAccess = async (playlistId, userId) => {
     if (error instanceof NotFoundError) throw error;
 
     const isCollab = await isPlaylistCollaborator(playlistId, userId);
-    if (!isCollab) throw new Error('Anda tidak punya akses ke playlist ini');
+    if (!isCollab) {
+      const forbiddenError = new Error('Anda tidak punya akses ke playlist ini');
+      forbiddenError.name = 'Forbidden';
+      throw forbiddenError;
+    }
   }
 };
 

@@ -36,11 +36,12 @@ const postAuthenticationHandler = async (request, h) => {
       },
     }).code(201);
   } catch (error) {
-    const isKnow = ['ValidationError', 'InvalidToken'].includes(error.name) || error.message.includes('Kredensial');
-    return h.response({
-      status: 'fail',
-      message: error.message,
-    }).code(isKnow ? 400 : 500);
+    if (error.name === 'AuthenticationError') {
+      return h.response({ status: 'fail', message: error.message }).code(401);
+    }
+    if (error.name === 'ValidationError') {
+      return h.response({ status: 'fail', message: error.message }).code(400);
+    }  
   }
 };
 
@@ -62,11 +63,9 @@ const putAuthenticationHandler = async (request, h) => {
       },
     });
   } catch (error) {
-    const isKnow = ['ValidationError', 'InvalidToken'].includes(error.name);
-    return h.response({
-      status: 'fail',
-      message: error.message,
-    }).code(isKnow ? 400 : 500);
+    if (error.name === 'InvalidToken') {
+      return h.response({ status: 'fail', message: error.message }).code(400);
+    }    
   }
 };
 
@@ -83,11 +82,9 @@ const deleteAuthenticationHandler = async (request, h) => {
       message: 'Refresh token berhasil dihapus',
     });
   } catch (error) {
-    const isKnown = ['ValidationError', 'InvalidToken'].includes(error.name);
-    return h.response({
-      status: 'fail',
-      message: error.message,
-    }).code(isKnown ? 400 : 500);
+    if (error.name === 'InvalidToken') {
+      return h.response({ status: 'fail', message: error.message }).code(400);
+    }    
   }
 };
 

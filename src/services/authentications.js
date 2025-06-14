@@ -34,7 +34,7 @@ const verifyRefreshTokenExistence = async (token) => {
 const deleteRefreshToken = async (token) => {
   const result = await pool.query('DELETE FROM authentications WHERE token = $1 RETURNING token', [token]);
   if (!result.rowCount) {
-    const error = new Error('Refresh tokenn tidak ditemukan');
+    const error = new Error('Refresh token tidak ditemukan');
     error.name = 'InvalidToken';
     throw error;
   }

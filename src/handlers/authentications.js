@@ -36,12 +36,19 @@ const postAuthenticationHandler = async (request, h) => {
       },
     }).code(201);
   } catch (error) {
-    if (error.name === 'AuthenticationError') {
-      return h.response({ status: 'fail', message: error.message }).code(401);
+    if (error.name === 'InvalidToken') {
+      return h.response({ status: 'fail', message: error.message }).code(400);
     }
     if (error.name === 'ValidationError') {
       return h.response({ status: 'fail', message: error.message }).code(400);
-    }  
+    }
+  
+    //untuk error tak terduga
+    console.error(error); //error bisa dilihat jika ada kesalahan
+    return h.response({
+      status: 'error',
+      message: 'Terjadi kesalahan pada server',
+    }).code(500);
   }
 };
 
@@ -65,7 +72,17 @@ const putAuthenticationHandler = async (request, h) => {
   } catch (error) {
     if (error.name === 'InvalidToken') {
       return h.response({ status: 'fail', message: error.message }).code(400);
-    }    
+    }
+    if (error.name === 'ValidationError') {
+      return h.response({ status: 'fail', message: error.message }).code(400);
+    }
+  
+    //untuk error tak terduga
+    console.error(error); //error bisa dilihat jika ada kesalahan
+    return h.response({
+      status: 'error',
+      message: 'Terjadi kesalahan pada server',
+    }).code(500);
   }
 };
 
@@ -84,7 +101,20 @@ const deleteAuthenticationHandler = async (request, h) => {
   } catch (error) {
     if (error.name === 'InvalidToken') {
       return h.response({ status: 'fail', message: error.message }).code(400);
-    }    
+    }
+    if (error.name === 'AuthenticationError') {
+      return h.response({ status: 'fail', message: error.message }).code(401);
+    }
+    if (error.name === 'ValidationError') {
+      return h.response({ status: 'fail', message: error.message }).code(400);
+    }
+  
+    //untuk error tak terduga
+    console.error(error); //error bisa dilihat jika ada kesalahan
+    return h.response({
+      status: 'error',
+      message: 'Terjadi kesalahan pada server',
+    }).code(500);
   }
 };
 

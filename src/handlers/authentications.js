@@ -42,6 +42,9 @@ const postAuthenticationHandler = async (request, h) => {
     if (error.name === 'ValidationError') {
       return h.response({ status: 'fail', message: error.message }).code(400);
     }
+    if (error.name === 'AuthenticationError') {
+      return h.response({ status: 'fail', message: error.message }).code(401);
+    }    
   
     //untuk error tak terduga
     console.error(error); //error bisa dilihat jika ada kesalahan

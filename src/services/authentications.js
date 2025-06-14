@@ -22,7 +22,6 @@ const verifyUserCredential = async (username, password) => {
   return id;
 };
 
-
 const verifyRefreshTokenExistence = async (token) => {
   const result = await pool.query('SELECT token FROM authentications WHERE token = $1', [token]);
   if (!result.rowCount) {

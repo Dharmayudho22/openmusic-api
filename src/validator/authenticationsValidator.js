@@ -1,16 +1,16 @@
 const Joi = require('joi');
 
-const AUthPayloadSchema = Joi.object({
+const AuthPayloadSchema = Joi.object({
   username: Joi.string().required(),
   password: Joi.string().required(),
 });
 
-const RefreshTokenScema = Joi.object({
+const RefreshTokenSchema = Joi.object({
   refreshToken: Joi.string().required(),
 });
 
 const validateAuthPayload = (payload) => {
-  const { error } = AUthPayloadSchema.validate(payload);
+  const { error } = AuthPayloadSchema.validate(payload);
   if (error) {
     const validationError = new Error(error.details.map(d => d.message).join(', '));
     validationError.name = 'ValidationError';
@@ -19,7 +19,7 @@ const validateAuthPayload = (payload) => {
 };
 
 const validateRefreshTokenPayload = (payload) => {
-  const { error } = RefreshTokenScema.validate(payload);
+  const { error } = RefreshTokenSchema.validate(payload);
   if (error) {
     const validationError = new Error(error.details.map(d => d.message).join(', '));
     validationError.name = 'ValidationError';

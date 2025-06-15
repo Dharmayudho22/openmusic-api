@@ -28,6 +28,16 @@ const getSongById = async (id) => {
 const addSong = async (payload) => {
   const { title, year, performer, genre, duration, albumId } = payload;
   const id = payload.id || `song-${Math.random().toString(36).substring(2, 16)}`;
+
+  if (albumId) {
+    const result = await pool.query('SELECT id FROM albums WHERE id = $1', [albumId]);
+    if (!result.rowCount) {
+      const error = new Error('Album tidak ditemukan');
+      error.name = 'NotFoundError';
+      throw error;
+    }
+  }
+
   await pool.query(
     'INSERT INTO songs (id, title, year, performer, genre, duration, album_id) VALUES ($1, $2, $3, $4, $5, $6, $7)',
     [id, title, year, performer, genre, duration, albumId || null]

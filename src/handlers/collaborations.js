@@ -54,7 +54,6 @@ const deleteCollaborationHandler = async (request, h) => {
   }
 };
 
-
 module.exports = {
   postCollaborationHandler,
   deleteCollaborationHandler,

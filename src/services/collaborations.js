@@ -11,6 +11,13 @@ const addCollaboration = async (playlistId, userId) => {
     throw error;
   }
 
+  const playlistCheck = await pool.query('SELECT id FROM playlists WHERE id = $1', [playlistId]);
+  if (!playlistCheck.rowCount) {
+    const error = new Error('Playlist tidak ditemukan');
+    error.name = 'NotFoundError';
+    throw error;
+  }
+
   await pool.query(
     'INSERT INTO collaborations (id, playlist_id, user_id) VALUES ($1, $2, $3)',
     [id, playlistId, userId]

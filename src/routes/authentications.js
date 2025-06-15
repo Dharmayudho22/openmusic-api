@@ -13,7 +13,7 @@ module.exports = [
   },
   {
     method: 'DELETE',
-    path: '/autentications',
+    path: '/authentications',
     handler: deleteAuthenticationHandler,
   },
 ];

@@ -6,7 +6,7 @@ const postPlaylistHandler = async (request, h) => {
   try {
     const userId = authenticate(request);
     validatePlaylistPayload(request.payload);
-  
+
     const playlistId = await addPlaylists(request.payload.name, userId);
     return h.response({
       status: 'success',
@@ -14,11 +14,11 @@ const postPlaylistHandler = async (request, h) => {
       data: { playlistId },
     }).code(201);
   } catch (error) {
-    const isClient = ['ValidationError', 'Unauthorized'].includes(error.name);
+    const status = error.name === 'Unauthorized' ? 401 : error.name === 'ValidationError' ? 400 : 500;
     return h.response({
-      status: 'fail',
+      status: status === 500 ? 'error' : 'fail',
       message: error.message,
-    }).code(isClient ? 400 : 500);
+    }).code(status);
   }
 };
 

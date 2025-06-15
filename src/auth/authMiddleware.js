@@ -1,24 +1,18 @@
 const jwt = require('jsonwebtoken');
+const Boom = require('@hapi/boom');
 
 const authenticate = (request) => {
   const authHeader = request.headers?.authorization;
-
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    const error = new Error('Token tidak ditemukan');
-    error.name = 'Unauthorized';
-    throw error;
+    throw Boom.unauthorized('Token tidak ditemukan');
   }
 
   const token = authHeader.replace('Bearer ', '');
-
   try {
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_KEY);
     return decoded.userId;
-  } catch (err) {
-    console.warn('Token tidak valid', err.message);
-    const error = new Error('Token tidak valid');
-    error.name = 'Unauthorized';
-    throw error;
+  } catch {
+    throw Boom.unauthorized('Token tidak valid');
   }
 };
 

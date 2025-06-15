@@ -26,14 +26,15 @@ const getSongById = async (id) => {
 };
 
 const addSong = async (payload) => {
-  const { id, title, year, performer, genre, duration, albumId } = payload;
+  const { title, year, performer, genre, duration, albumId } = payload;
+  const id = payload.id || `song-${Math.random().toString(36).substr(2, 16)}`;
+
   await pool.query(
     'INSERT INTO songs (id, title, year, performer, genre, duration, album_id) VALUES ($1, $2, $3, $4, $5, $6, $7)',
     [id, title, year, performer, genre, duration, albumId || null]
   );
   return id;
 };
-
 
 const editSongById = async (id, payload) => {
   const { title, year, performer, genre, duration, album_id } = payload; 

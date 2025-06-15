@@ -29,52 +29,35 @@ const init = async() => {
   //error
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
-
+  
     if (response.isBoom) {
-      if (response.output.statusCode === 404) {
+      const statusCode = response.output.statusCode;
+      const message = response.output.payload.message;
+  
+      if ([400, 401, 403, 404].includes(statusCode)) {
         return h.response({
           status: 'fail',
-          message: 'Resource tidak ditemukan',
-        }).code(404);
+          message,
+        }).code(statusCode);
       }
-
-      if (response.isClientError) {
-        return h.response({
-          status: 'fail',
-          message: response.message,
-        }).code(response.output.statusCode);
-      }
-
+  
       console.error(response);
       return h.response({
         status: 'error',
         message: 'terjadi kegagalan pada server kami',
       }).code(500);
     }
-
-    // Tangani error custom (seperti NotFoundError, ValidationError)
+  
     if (response instanceof Error) {
-      if (response.name === 'NotFoundError') {
-        return h.response({
-          status: 'fail',
-          message: response.message,
-        }).code(404);
-      }
-
-      if (response.name === 'ValidationError') {
-        return h.response({
-          status: 'fail',
-          message: response.message,
-        }).code(400);
-      }
-
-      console.error(response);
+      const statusCode = response.statusCode || 500;
+      const message = response.message || 'terjadi kegagalan';
+  
       return h.response({
-        status: 'error',
-        message: 'terjadi kegagalan pada server kami',
-      }).code(500);
+        status: statusCode === 500 ? 'error' : 'fail',
+        message,
+      }).code(statusCode);
     }
-
+  
     return h.continue;
   });
 

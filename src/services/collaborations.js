@@ -1,11 +1,15 @@
 const { nanoid } = require('nanoid');
 const pool = require('../database/postgres');
-const NotFoundError = require('../NotFoundError');
+//const NotFoundError = require('../NotFoundError');
 
 const addCollaboration = async (playlistId, userId) => {
   const id = `collab-${nanoid(16)}`;
-  const userCheck = await pool.query('SELECT id FROM user WHERE id = @1', [userId]);
-  if (!userCheck.rowCount) throw new NotFoundError('User tidak ditemukan');
+  const userCheck = await pool.query('SELECT id FROM users WHERE id = $1', [userId]);
+  if (!userCheck.rowCount) {
+    const error = new Error('User tidak ditemukan');
+    error.name = 'NotFoundError';
+    throw error;
+  }
 
   await pool.query(
     'INSERT INTO collaborations (id, playlist_id, user_id) VALUES ($1, $2, $3)',
@@ -25,7 +29,7 @@ const deleteCollaboration = async (playlistId, userId) => {
     throw error;
   }
 };
-  
+
 const isPlaylistCollaborator = async (playlistId, userId) => {
   const result = await pool.query(
     'SELECT id FROM collaborations WHERE playlist_id = $1 AND user_id = $2',
@@ -33,7 +37,7 @@ const isPlaylistCollaborator = async (playlistId, userId) => {
   );
   return result.rowCount > 0;
 };
-  
+
 module.exports = {
   addCollaboration,
   deleteCollaboration,

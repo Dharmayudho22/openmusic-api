@@ -9,7 +9,6 @@ const postCollaborationHandler = async (request, h) => {
     validateCollaborationPayload(request.payload);
 
     const { playlistId, userId: targetUserId } = request.payload;
-
     await verifyPlaylistOwner(playlistId, userId);
     const collabId = await addCollaboration(playlistId, targetUserId);
 
@@ -23,7 +22,10 @@ const postCollaborationHandler = async (request, h) => {
       error.name === 'Forbidden' ? 403 :
         error.name === 'Unauthorized' ? 401 :
           error.name === 'NotFoundError' ? 404 : 500;
-    return h.response({ status: 'fail', message: error.message }).code(status);
+    return h.response({
+      status: status === 500 ? 'error' : 'fail',
+      message: error.message,
+    }).code(status);
   }
 };
 
@@ -33,7 +35,6 @@ const deleteCollaborationHandler = async (request, h) => {
     validateCollaborationPayload(request.payload);
 
     const { playlistId, userId: targetUserId } = request.payload;
-
     await verifyPlaylistOwner(playlistId, userId);
     await deleteCollaboration(playlistId, targetUserId);
 
@@ -46,9 +47,13 @@ const deleteCollaborationHandler = async (request, h) => {
       error.name === 'Forbidden' ? 403 :
         error.name === 'Unauthorized' ? 401 :
           error.name === 'NotFoundError' ? 404 : 500;
-    return h.response({ status: 'fail', message: error.message }).code(status);
+    return h.response({
+      status: status === 500 ? 'error' : 'fail',
+      message: error.message,
+    }).code(status);
   }
 };
+
 
 module.exports = {
   postCollaborationHandler,

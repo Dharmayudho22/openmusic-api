@@ -7,6 +7,7 @@ const {
 
 const { validatePlaylistSongPayload } = require('../validator/playlistSongsValidator');
 const { authenticate } = require('../auth/authMiddleware');
+const Boom = require('@hapi/boom');
 
 const postSongToPlaylistHandler = async (request, h) => {
   try {
@@ -23,14 +24,25 @@ const postSongToPlaylistHandler = async (request, h) => {
       message: 'Lagu berhasil ditambahkan ke playlist',
     }).code(201);
   } catch (error) {
-    const status = error.name === 'ValidationError' ? 400 :
-      error.name === 'Forbidden' ? 403 :
-        error.name === 'Unauthorized' ? 401 :
-          error.name === 'NotFoundError' ? 404 : 500;
+    if (Boom.isBoom(error)) {
+      return h.response({
+        status: 'fail',
+        message: error.message,
+      }).code(error.output.statusCode);
+    }
+
+    if (error.name === 'ValidationError') {
+      return h.response({
+        status: 'fail',
+        message: error.message,
+      }).code(400);
+    }
+
+    console.error(error);
     return h.response({
-      status: 'fail',
-      message: error.message
-    }).code(status);
+      status: 'error',
+      message: 'Terjadi kesalahan pada server',
+    }).code(500);
   }
 };
 
@@ -47,13 +59,18 @@ const getSongsFromPlaylistHandler = async (request, h) => {
       data: { playlist },
     });
   } catch (error) {
-    const status = error.name === 'Forbidden' ? 403 :
-      error.name === 'Unauthorized' ? 401 : 
-        error.name === 'NotFoundError' ? 404 : 500;
+    if (Boom.isBoom(error)) {
+      return h.response({
+        status: 'fail',
+        message: error.message,
+      }).code(error.output.statusCode);
+    }
+
+    console.error(error);
     return h.response({
-      status: 'fail', 
-      message: error.message
-    }).code(status);
+      status: 'error',
+      message: 'Terjadi kesalahan pada server',
+    }).code(500);
   }
 };
 
@@ -72,14 +89,25 @@ const deleteSongFromPlaylistHandler = async (request, h) => {
       message: 'Lagu berhasil dihapus dari playlist',
     });
   } catch (error) {
-    const status = error.name === 'ValidationError' ? 400 :
-      error.name === 'Forbidden' ? 403 :
-        error.name === 'Unauthorized' ? 401 :
-          error.name === 'NotFoundError' ? 404 : 500;
-    return h.response({ 
-      status: 'fail', 
-      message: error.message 
-    }).code(status);
+    if (Boom.isBoom(error)) {
+      return h.response({
+        status: 'fail',
+        message: error.message,
+      }).code(error.output.statusCode);
+    }
+
+    if (error.name === 'ValidationError') {
+      return h.response({
+        status: 'fail',
+        message: error.message,
+      }).code(400);
+    }
+
+    console.error(error);
+    return h.response({
+      status: 'error',
+      message: 'Terjadi kesalahan pada server',
+    }).code(500);
   }
 };
   

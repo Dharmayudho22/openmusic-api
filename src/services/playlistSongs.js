@@ -1,17 +1,16 @@
 const { nanoid } = require('nanoid');
 const pool = require('../database/postgres');
-const NotFoundError = require('../NotFoundError');
+//const NotFoundError = require('../NotFoundError');
 const { isPlaylistCollaborator } = require('./collaborations');
 const { logActivity } = require('./playlistActivities');
+const Boom = require('@hapi/boom');
 
 const verifyPlaylistOwner = async (playlistId, userId) => {
   const result = await pool.query('SELECT owner FROM playlists WHERE id = $1', [playlistId]);
-  if (!result.rowCount) throw new NotFoundError('Playlist tidak ditemukan');
+  if (!result.rowCount) throw Boom.notFound('Playlist tidak ditemukan');
 
   if (result.rows[0].owner !== userId) {
-    const error = new Error('Anda tidak berhak mengakses resource ini');
-    error.name = 'Forbidden';
-    throw error;
+    throw Boom.forbidden('Anda tidak berhak mengakses resource ini');
   }
 };
 
@@ -19,26 +18,24 @@ const verifyPlaylistAccess = async (playlistId, userId) => {
   try {
     await verifyPlaylistOwner(playlistId, userId);
   } catch (error) {
-    if (error instanceof NotFoundError) throw error;
+    if (Boom.isBoom(error) && error.output.statusCode === 404) throw error;
 
     const isCollab = await isPlaylistCollaborator(playlistId, userId);
     if (!isCollab) {
-      const forbiddenError = new Error('Anda tidak punya akses ke playlist ini');
-      forbiddenError.name = 'Forbidden';
-      throw forbiddenError;
+      throw Boom.forbidden('Anda tidak punya akses ke playlist ini');
     }
   }
 };
 
 const addSongToPlaylist = async (playlistId, songId, userId) => {
   const songsResult = await pool.query('SELECT id FROM songs WHERE id = $1', [songId]);
-  if (!songsResult.rowCount) throw new NotFoundError('Lagu tidak ditemukan');
+  if (!songsResult.rowCount) throw Boom.notFound('Lagu tidak ditemukan');
 
   const id = `psong-${nanoid(16)}`;
   await pool.query(
     'INSERT INTO playlist_songs (id, playlist_id, song_id) VALUES ($1, $2, $3)',
     [id, playlistId, songId]
-  );  
+  );
 
   await logActivity(playlistId, songId, userId, 'add');
 };
@@ -50,7 +47,9 @@ const getSongsFromPlaylist = async (playlistId) => {
        JOIN users ON playlists.owner = users.id
        WHERE playlists.id = $1`, [playlistId]);
   
-  if (!playlistResult.rowCount) throw new NotFoundError('Playlist tidak ditemukan');
+  if (!playlistResult.rowCount) {
+    throw Boom.notFound('Playlist tidak ditemukan');
+  }
   
   const songsResult = await pool.query(
     `SELECT songs.id, songs.title, songs.performer
@@ -73,10 +72,8 @@ const deleteSongFromPlaylist = async (playlistId, songId, userId) => {
   );
 
   if (!result.rowCount) {
-    const error = new Error('Lagu tidak ditemukan di playlist');
-    error.name = 'NotFoundError';
-    throw error;
-  }
+    throw Boom.notFound('Lagu tidak ditemukan di dalam playlist');
+  }  
 
   await logActivity(playlistId, songId, userId, 'delete');
 };

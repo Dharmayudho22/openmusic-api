@@ -1,5 +1,6 @@
 const { nanoid } = require('nanoid');
 const pool = require('../database/postgres');
+const Boom = require('@hapi/boom');
 //const NotFoundError = require('../NotFoundError');
 
 const addPlaylists = async (name, owner) => {
@@ -20,11 +21,13 @@ const getPlaylists = async (owner) => {
 };
 
 const deletePlaylist = async (id, owner) => {
-  const result = await pool.query('DELETE FROM playlists WHERE id = $1 AND owner = $2 RETURNING id', [id, owner]);
+  const result = await pool.query(
+    'DELETE FROM playlists WHERE id = $1 AND owner = $2 RETURNING id',
+    [id, owner]
+  );
+
   if (!result.rowCount) {
-    const error = new Error('Playlist tidak ditemukan atau Anda tidak berhak menghapusnya');
-    error.name = 'Forbidden';
-    throw error;
+    throw Boom.forbidden('Anda tidak berhak menghapus playlist ini atau playlist tidak ditemukan');
   }
 };
 

@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const Boom = require('@hapi/boom');
 
 const PlaylistPayloadSchema = Joi.object({
   name: Joi.string().required(),
@@ -7,9 +8,7 @@ const PlaylistPayloadSchema = Joi.object({
 const validatePlaylistPayload = (payload) => {
   const { error } = PlaylistPayloadSchema.validate(payload);
   if (error) {
-    const validationError = new Error(error.details.map(d => d.message).join(', '));
-    validationError.name = 'ValidationError';
-    throw validationError;
+    throw Boom.badRequest(error.details.map(d => d.message).join(', '));
   }
 };
 

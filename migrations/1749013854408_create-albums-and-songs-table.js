@@ -43,6 +43,7 @@ exports.up = (pgm) => {
       references: '"albums"',
       onDelete: 'SET NULL',
       onUpdate: 'CASCADE',
+      notNull: false,
     },
   });
 };

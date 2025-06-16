@@ -1,6 +1,7 @@
 const { validatePlaylistPayload } = require('../validator/playlistsValidator');
 const { addPlaylists, getPlaylists, deletePlaylist } = require('../services/playlists');
 const { authenticate } = require('../auth/authMiddleware');
+const Boom = require('@hapi/boom');
 
 const postPlaylistHandler = async (request, h) => {
   try {
@@ -14,11 +15,17 @@ const postPlaylistHandler = async (request, h) => {
       data: { playlistId },
     }).code(201);
   } catch (error) {
-    const status = error.name === 'Unauthorized' ? 401 : error.name === 'ValidationError' ? 400 : 500;
+    if (Boom.isBoom(error)) {
+      return h.response({
+        status: 'fail',
+        message: error.message,
+      }).code(error.output.statusCode);
+    }
+
     return h.response({
-      status: status === 500 ? 'error' : 'fail',
-      message: error.message,
-    }).code(status);
+      status: 'error',
+      message: 'Terjadi kesalahan pada server',
+    }).code(500);
   }
 };
 
@@ -26,38 +33,51 @@ const getPlaylistsHandler = async (request, h) => {
   try {
     const userId = authenticate(request);
     const playlists = await getPlaylists(userId);
-  
+
     return h.response({
       status: 'success',
       data: { playlists },
     });
   } catch (error) {
+    if (Boom.isBoom(error)) {
+      return h.response({
+        status: 'fail',
+        message: error.message,
+      }).code(error.output.statusCode);
+    }
+
     return h.response({
-      status: 'fail',
-      message: error.message,
-    }).code(error.name === 'Unauthorized' ? 401 : 500);
+      status: 'error',
+      message: 'Terjadi kesalahan pada server',
+    }).code(500);
   }
 };
-  
+
 const deletePlaylistHandler = async (request, h) => {
   try {
     const userId = authenticate(request);
     const { id } = request.params;
-  
+
     await deletePlaylist(id, userId);
     return h.response({
       status: 'success',
       message: 'Playlist berhasil dihapus',
     });
   } catch (error) {
-    const status = error.name === 'Forbidden' ? 403 : error.name === 'Unauthorized' ? 401 : 500;
+    if (Boom.isBoom(error)) {
+      return h.response({
+        status: 'fail',
+        message: error.message,
+      }).code(error.output.statusCode);
+    }
+
     return h.response({
-      status: 'fail',
-      message: error.message,
-    }).code(status);
+      status: 'error',
+      message: 'Terjadi kesalahan pada server',
+    }).code(500);
   }
 };
-  
+
 module.exports = {
   postPlaylistHandler,
   getPlaylistsHandler,

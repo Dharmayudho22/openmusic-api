@@ -2,6 +2,7 @@ const { authenticate } = require('../auth/authMiddleware');
 const { validateCollaborationPayload } = require('../validator/collaborationsValidator');
 const { addCollaboration, deleteCollaboration } = require('../services/collaborations');
 const { verifyPlaylistOwner } = require('../services/playlistSongs');
+const Boom = require('@hapi/boom');
 
 const postCollaborationHandler = async (request, h) => {
   try {
@@ -10,6 +11,7 @@ const postCollaborationHandler = async (request, h) => {
 
     const { playlistId, userId: targetUserId } = request.payload;
     await verifyPlaylistOwner(playlistId, userId);
+
     const collabId = await addCollaboration(playlistId, targetUserId);
 
     return h.response({
@@ -18,14 +20,25 @@ const postCollaborationHandler = async (request, h) => {
       data: { collaborationId: collabId },
     }).code(201);
   } catch (error) {
-    const status = error.name === 'ValidationError' ? 400 :
-      error.name === 'Forbidden' ? 403 :
-        error.name === 'Unauthorized' ? 401 :
-          error.name === 'NotFoundError' ? 404 : 500;
+    if (Boom.isBoom(error)){
+      return h.response({
+        status: error.output.statusCode === 500? 'error' : 'fail',
+        message: error.message,
+      }).code(error.output.statusCode);
+    }
+
+    if (error.name === 'ValidationError'){
+      return h.response({
+        status: 'fail',
+        message: error.message,
+      }).code(400);
+    }
+    
+    console.error(error);
     return h.response({
-      status: status === 500 ? 'error' : 'fail',
-      message: error.message,
-    }).code(status);
+      status: 'error',
+      message: 'Terjadi kesalahan pada server',
+    }).code(500);
   }
 };
 
@@ -43,14 +56,25 @@ const deleteCollaborationHandler = async (request, h) => {
       message: 'Kolaborator berhasil dihapus',
     });
   } catch (error) {
-    const status = error.name === 'ValidationError' ? 400 :
-      error.name === 'Forbidden' ? 403 :
-        error.name === 'Unauthorized' ? 401 :
-          error.name === 'NotFoundError' ? 404 : 500;
+    if (Boom.isBoom(error)) {
+      return h.response({
+        status: error.output.statusCode === 500 ? 'error' : 'fail',
+        message: error.message,
+      }).code(error.output.statusCode);
+    }
+
+    if (error.name === 'ValidationError') {
+      return h.response({
+        status: 'fail',
+        message: error.message,
+      }).code(400);
+    }
+
+    console.error(error);
     return h.response({
-      status: status === 500 ? 'error' : 'fail',
-      message: error.message,
-    }).code(status);
+      status: 'error',
+      message: 'Terjadi kesalahan pada server',
+    }).code(500);
   }
 };
 

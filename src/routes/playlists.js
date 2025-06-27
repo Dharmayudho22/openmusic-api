@@ -15,6 +15,11 @@ module.exports = [
     path: '/playlists',
     handler: getPlaylistsHandler,
   },
+  // {
+  //   method: 'POST',
+  //   path: '',
+  //   handler: (request, h) => h
+  // },
   {
     method: 'DELETE',
     path: '/playlists/{id}',

@@ -1,9 +1,9 @@
 require('dotenv').config();
 const amqp = require('amqplib');
-const PlaylistsService = require('../services/playlists');
-const MailSender = require('../services/MailSender');
-const ClientError = require('../exceptions/ClientError');
-const config = require('../utils/config');
+const PlaylistsService = require('../../../src/services/playlists');
+const MailSender = require('../../../src/services/MailSender');
+const ClientError = require('../../../src/exceptions/ClientError');
+const config = require('../../../src/utils/config');
 const autoBind = require('auto-bind');
 
 class ExportPlaylistConsumer {
